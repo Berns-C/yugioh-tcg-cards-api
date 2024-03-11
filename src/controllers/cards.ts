@@ -11,16 +11,15 @@ import { findOneByString } from '../custom-middleware/find';
 import slugifyName from '../lib/slugify';
 import { CARD_UPDATABLE_PROPERTIES } from '../data/constant_variables';
 import { getOriginalUrl } from '../utilities/texts';
-import { handleLimit } from '../utilities/db-util';
-import { handleOffsetSkipCount } from '../utilities/numbers';
 import {
-  getValidProperties,
-  formPagination,
-  formRegexObj,
-  defaultOperation,
-  getFirstOperation,
-  formOperationObj,
-} from '../utilities/object-format';
+  setLimit,
+  setDefaultOperator,
+  createRegexQuery,
+  findFirstOperatorKey,
+  createOperatorQuery,
+} from '../utilities/db-util';
+import { handleOffsetSkipCount } from '../utilities/numbers';
+import { filterReqProps, createPaginationObj } from '../utilities/object';
 import { CARDS_QUERIES_ARR } from '../data/constant_variables';
 
 export const addCards = validateArrData(
@@ -71,97 +70,97 @@ export const getAllCards = asyncHandler(
       link,
       atk,
       def,
-    } = getValidProperties(CARDS_QUERIES_ARR, req.query);
-    const limitNum = handleLimit(limit);
+    } = filterReqProps(CARDS_QUERIES_ARR, req.query);
+    const limitNum = setLimit(limit);
     const dbQueries = {};
     let filters = '';
     let total = 0;
     let skip = 0;
 
     if (name) {
-      dbQueries['cardName'] = formRegexObj(name.toUpperCase());
+      dbQueries['cardName'] = createRegexQuery(name.toUpperCase());
       filters += `&name=${name}`;
     }
 
     if (archetype) {
-      dbQueries['archetype'] = formRegexObj(archetype);
+      dbQueries['archetype'] = createRegexQuery(archetype);
       filters += `&archetype=${archetype}`;
     }
 
     if (attribute) {
-      dbQueries['attribute'] = formRegexObj(attribute.toUpperCase());
+      dbQueries['attribute'] = createRegexQuery(attribute.toUpperCase());
       filters += `&attribute=${attribute}`;
     }
 
     if (type) {
-      dbQueries['type'] = formRegexObj(type);
+      dbQueries['type'] = createRegexQuery(type);
       filters += `&type=${type}`;
     }
 
     if (typing) {
-      dbQueries['typing'] = formRegexObj(typing);
+      dbQueries['typing'] = createRegexQuery(typing);
       filters += `&typing=${typing}`;
     }
 
     if (cardtext) {
-      dbQueries['cardText'] = formRegexObj(cardtext);
+      dbQueries['cardText'] = createRegexQuery(cardtext);
       filters += `&cardtext=${cardtext}`;
     }
 
     if (pendulumtext) {
-      dbQueries['pendulumText'] = formRegexObj(pendulumtext);
+      dbQueries['pendulumText'] = createRegexQuery(pendulumtext);
       filters += `&pendulumtext=${pendulumtext}`;
     }
 
     if (levelorrank) {
       if (typeof levelorrank === 'string') {
         filters += `&levelorrank=${levelorrank}`;
-        dbQueries['levelOrRank'] = defaultOperation(levelorrank);
+        dbQueries['levelOrRank'] = setDefaultOperator(levelorrank);
       }
 
       if (typeof levelorrank === 'object') {
-        const { key, num } = getFirstOperation(levelorrank);
+        const { key, num } = findFirstOperatorKey(levelorrank);
         filters += `&levelorrank[${key}]=${num}`;
-        dbQueries['levelOrRank'] = formOperationObj(key, num);
+        dbQueries['levelOrRank'] = createOperatorQuery(key, num);
       }
     }
 
     if (link) {
       if (typeof link === 'string') {
         filters += `&link=${link}`;
-        dbQueries['link'] = defaultOperation(link);
+        dbQueries['link'] = setDefaultOperator(link);
       }
 
       if (typeof link === 'object') {
-        const { key, num } = getFirstOperation(link);
+        const { key, num } = findFirstOperatorKey(link);
         filters += `&link[${key}]=${num}`;
-        dbQueries['link'] = formOperationObj(key, num);
+        dbQueries['link'] = createOperatorQuery(key, num);
       }
     }
 
     if (atk) {
       if (typeof atk === 'string') {
         filters += `&atk=${atk}`;
-        dbQueries['attack'] = defaultOperation(atk);
+        dbQueries['attack'] = setDefaultOperator(atk);
       }
 
       if (typeof atk === 'object') {
-        const { key, num } = getFirstOperation(atk);
+        const { key, num } = findFirstOperatorKey(atk);
         filters += `&atk[${key}]=${num}`;
-        dbQueries['attack'] = formOperationObj(key, num);
+        dbQueries['attack'] = createOperatorQuery(key, num);
       }
     }
 
     if (def) {
       if (typeof def === 'string') {
         filters += `&def=${def}`;
-        dbQueries['defense'] = defaultOperation(def);
+        dbQueries['defense'] = setDefaultOperator(def);
       }
 
       if (typeof def === 'object') {
-        const { key, num } = getFirstOperation(def);
+        const { key, num } = findFirstOperatorKey(def);
         filters += `&def[${key}]=${num}`;
-        dbQueries['defense'] = formOperationObj(key, num);
+        dbQueries['defense'] = createOperatorQuery(key, num);
       }
     }
 
@@ -169,7 +168,7 @@ export const getAllCards = asyncHandler(
     skip = handleOffsetSkipCount(total, offset);
     const data = await Cards.find(dbQueries).skip(skip).limit(limitNum);
 
-    const pagination = formPagination({
+    const pagination = createPaginationObj({
       url,
       offset: skip,
       limit: limitNum,
@@ -210,7 +209,7 @@ export const updateCard = validateAndFindID(
           levelOrRank,
           attack,
           defense,
-        } = getValidProperties(CARD_UPDATABLE_PROPERTIES, body);
+        } = filterReqProps(CARD_UPDATABLE_PROPERTIES, body);
 
         const newDetails = {
           cardName: cardName || result.cardName,
@@ -243,14 +242,14 @@ export const updateCard = validateAndFindID(
 
         if (
           result?.archetype.toUpperCase() !== body?.archetype.toUpperCase() &&
-          result?.archetype_id
+          result.archetype_id
         ) {
-          const oldArchetype = await Archetypes.findById({
+          const prevArchetype = await Archetypes.findById({
             _id: result.archetype_id,
           });
 
-          if (oldArchetype) {
-            const updatedCards = oldArchetype.cards.filter((cardId) => {
+          if (prevArchetype) {
+            const updatedCards = prevArchetype.cards.filter((cardId) => {
               if (cardId && !cardId.equals(paramID)) {
                 return cardId;
               }
@@ -309,9 +308,9 @@ export const deleteCard = validateAndFindID(
       });
 
       if (archetype?.cards.length) {
-        const idToRemove = new ObjectId(params.id);
+        const id = new ObjectId(params.id);
         const newCardList = archetype?.cards.filter((cardId: any) => {
-          if (!cardId.equals(idToRemove)) {
+          if (!cardId.equals(id)) {
             return cardId;
           }
         });

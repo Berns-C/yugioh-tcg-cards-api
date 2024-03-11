@@ -3,9 +3,7 @@ import {
   MAX_LIMIT_PER_QUERY,
 } from '../data/constant_variables';
 
-export const handleOffset = () => {};
-
-export const handleLimit = (limit: string) => {
+export const setLimit = (limit: string) => {
   const max = MAX_LIMIT_PER_QUERY;
   const defaultLimit = DEFAULT_LIMIT_PER_QUERY;
   const num = parseInt(limit);
@@ -15,4 +13,33 @@ export const handleLimit = (limit: string) => {
   }
 
   return num <= max ? num : max;
+};
+
+export const setDefaultOperator = (num: string) => {
+  //Use $eq operation as default.
+  const numCount = parseInt(num);
+  return { $eq: numCount };
+};
+
+export const createRegexQuery = (text: string) => {
+  if (text.includes('_')) {
+    text = text.replaceAll('_', ' ');
+  }
+  return {
+    $regex: `${text}`,
+    $options: 'i',
+  };
+};
+
+export const findFirstOperatorKey = (obj: object) => {
+  const firstKey = Object.keys(obj)[0];
+  const num = parseInt(obj[firstKey]);
+
+  return { key: firstKey, num };
+};
+
+export const createOperatorQuery = (objKey: string, num: number) => {
+  const operation = {};
+  operation[`$${objKey}`] = num;
+  return operation;
 };

@@ -8,16 +8,15 @@ import {
   validateArrData,
 } from '../custom-middleware/validations';
 import { findOneByString } from '../custom-middleware/find';
-import {
-  getValidProperties,
-  formPagination,
-  formRegexObj,
-  defaultOperation,
-  getFirstOperation,
-  formOperationObj,
-} from '../utilities/object-format';
+import { filterReqProps, createPaginationObj } from '../utilities/object';
 import { getOriginalUrl } from '../utilities/texts';
-import { handleLimit } from '../utilities/db-util';
+import {
+  setLimit,
+  setDefaultOperator,
+  createRegexQuery,
+  findFirstOperatorKey,
+  createOperatorQuery,
+} from '../utilities/db-util';
 import { handleOffsetSkipCount } from '../utilities/numbers';
 import {
   ARCHETYPES_QUERIES_ARR,
@@ -59,11 +58,11 @@ export const getArchetypeByName = findOneByString(
 export const getAllArchetypes = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     const url = getOriginalUrl(req);
-    const { name, cards, offset, limit }: IQueries = getValidProperties(
+    const { name, cards, offset, limit }: IQueries = filterReqProps(
       ARCHETYPES_QUERIES_ARR,
       req.query
     );
-    const limitNum = handleLimit(limit);
+    const limitNum = setLimit(limit);
     const dbQueries = {};
     let filters = '';
     let total = 0;
@@ -71,7 +70,7 @@ export const getAllArchetypes = asyncHandler(
     let skip = 0;
 
     if (name) {
-      dbQueries['name'] = formRegexObj(name.toUpperCase());
+      dbQueries['name'] = createRegexQuery(name.toUpperCase());
       filters += `&name=${name}`;
     }
 
@@ -92,13 +91,13 @@ export const getAllArchetypes = asyncHandler(
 
       if (typeof cards === 'string') {
         filters += `&cards=${cards}`;
-        dbQueries['cardsSize'] = defaultOperation(cards);
+        dbQueries['cardsSize'] = setDefaultOperator(cards);
       }
 
       if (typeof cards === 'object' && Object.keys(cards).length) {
-        const { key, num } = getFirstOperation(cards);
+        const { key, num } = findFirstOperatorKey(cards);
         filters += `&cards[${key}]=${num}`;
-        dbQueries['cardsSize'] = formOperationObj(key, num);
+        dbQueries['cardsSize'] = createOperatorQuery(key, num);
       }
 
       aggregateArr.push({
@@ -118,7 +117,7 @@ export const getAllArchetypes = asyncHandler(
       data = await Archetypes.find(dbQueries).skip(skip).limit(limitNum);
     }
 
-    const pagination = formPagination({
+    const pagination = createPaginationObj({
       url,
       offset: skip,
       limit: limitNum,
@@ -143,7 +142,7 @@ export const updateArchetype = validateAndFindID(
     ) => {
       let updated = null;
       if (Object.keys(body).length) {
-        const { name, source, coverImg } = getValidProperties(
+        const { name, source, coverImg } = filterReqProps(
           ARCHETYPE_UPDATABLE_PROPERTIES,
           body
         );
