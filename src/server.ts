@@ -1,11 +1,11 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import 'colors';
-import cards from './src/routes/cards';
-import archetypes from './src/routes/archetypes';
-import errorHandler from './src/custom-middleware/error';
-import { logger } from './src/middleware/logger';
-import connectDB from './src/config/db';
+import cards from './routes/cards';
+import archetypes from './routes/archetypes';
+import errorHandler from './custom-middleware/error';
+import { logger } from './middleware/logger';
+import connectDB from './config/db';
 import cors from 'cors';
 
 const app = express();

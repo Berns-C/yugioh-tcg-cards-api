@@ -5,10 +5,6 @@
     "target": "ES2021",
     "sourceMap": true,
     "baseUrl": ".",
-    "paths": {
-      "@Config/*": ["./src/controllers/*"],
-      "@Routes/*": ["./src/routes/*"]
-    },
     "outDir": "dist",
     "esModuleInterop": true,
     // "forceConsistentCasingInFileNames": true
