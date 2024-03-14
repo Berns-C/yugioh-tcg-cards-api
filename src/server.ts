@@ -16,7 +16,7 @@ import cors from 'cors';
 const app = express();
 
 //Load env variables
-dotenv.config({ path: './env/config.env' });
+dotenv.config({ path: './config.env' });
 
 connectDB(); //Connect to database
 app.use(express.json()); // Body parser
