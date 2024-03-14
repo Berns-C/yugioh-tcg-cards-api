@@ -24,8 +24,8 @@ app.use(cors()); // Body parser
 app.use(helmet()); //Set security headers
 app.use(mongoSanitize()); // Sanitize data
 app.use(hpp()); //Prevent http param pollution
-app.use(limiter); // Apply the rate limiting middleware to all requests.
-app.use(xss()); //Prvent XSS attacks
+//app.use(limiter); // Apply the rate limiting middleware to all requests.
+//app.use(xss()); //Prvent XSS attacks
 
 //Dev logging middleware
 //app.use(logger); /*Custom middleware */
