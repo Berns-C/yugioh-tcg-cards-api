@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "allowSyntheticDefaultImports": true,
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "target": "ES2021",
+    "sourceMap": true,
+    "baseUrl": "./src",
+    "outDir": "dist",
+    "esModuleInterop": true,
+    // "forceConsistentCasingInFileNames": true
+    // "strict": true,
+    "skipLibCheck": true
+  },
+  "include": ["src/**/*ts"],
+  "exclude": ["node_modules"]
+}
