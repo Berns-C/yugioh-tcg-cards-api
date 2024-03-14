@@ -6,7 +6,7 @@
   "scripts": {
     "build": "tsc",
     "start": "node dist/server.js",
-    "build-start": "npm run build && npm run start",
+    "build-start": " npm i && npm run build && npm run start",
     "dev": "ts-node-dev ./src/server.ts"
   },
   "author": "Bernhard Paolo Cena",
