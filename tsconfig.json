@@ -2,9 +2,10 @@
   "compilerOptions": {
     "allowSyntheticDefaultImports": true,
     "module": "NodeNext",
+    "moduleResolution": "NodeNext",
     "target": "ES2021",
     "sourceMap": true,
-    "baseUrl": ".",
+    "baseUrl": "./src",
     "outDir": "dist",
     "esModuleInterop": true,
     // "forceConsistentCasingInFileNames": true
