@@ -6,10 +6,17 @@
   "scripts": {
     "build": "tsc",
     "start": "node dist/server.js",
+    "build-start": "npm run build && npm run start",
     "dev": "ts-node-dev ./src/server.ts"
   },
   "author": "Bernhard Paolo Cena",
   "license": "ISC",
+  "keywords": [
+    "NodeJS",
+    "ExpressJS",
+    "MongoDB",
+    "Demo"
+  ],
   "dependencies": {
     "cors": "^2.8.5",
     "dotenv": "^16.4.1",

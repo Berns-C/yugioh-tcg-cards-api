@@ -25,7 +25,7 @@ RESTful API for managing Yu-Gi-Oh cards. This project serves as a learning exerc
    ```
 
 3. Set up environment variables:
-   - Create a `config.env` file in the env directory.
+   - Create a `config.env` file in the root directory.
    - Add environment-specific variables:
      - `NODE_ENV` - Set environment (development or production)'
      - `PORT` - Set port for the project.
