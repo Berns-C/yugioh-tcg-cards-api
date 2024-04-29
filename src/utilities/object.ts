@@ -25,13 +25,14 @@ export const createPaginationObj = ({
 }) => {
   const remaining = getTotalRemaining(total, limit, offset);
   const next = offset + limit;
-  const currentRows = total - (offset + remaining);
   const pagination = {
-    current_rows: currentRows,
+    limit: limit,
     prev_page: '',
     next_page: '',
+    total_data: total,
     remaining_data: remaining,
-    page: `${next > total ? total : next}/${total}`,
+    page: 1,
+    loaded_data: `${next > total ? total : next}/${total}`,
   };
 
   if (filters.includes(' ')) {
@@ -46,6 +47,7 @@ export const createPaginationObj = ({
       limit,
       filters,
     });
+    pagination.page = Math.round((prev + limit) / limit) + 1;
   }
 
   if (next <= total && remaining > 0) {
