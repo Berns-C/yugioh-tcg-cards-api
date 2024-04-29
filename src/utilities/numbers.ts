@@ -3,13 +3,7 @@ export const getTotalRemaining = (
   limit: number,
   offset: number
 ) => {
-  const remaining = total - limit;
-  const currentCount = offset + limit;
-
-  if (offset > 0) {
-    return currentCount > total ? 0 : total - currentCount;
-  }
-
+  const remaining = total - (offset + limit);
   return remaining > 0 ? remaining : 0;
 };
 
